@@ -1,0 +1,16 @@
+#docker-compose version
+version: '3.8'
+
+#define services (a service can be a server/client/database/etc)
+services:
+  #create the services for a client and a server
+  #first service(container) - server
+  server:
+    #use 'build' to define the path to the folder containing the Dockerfile to use
+    build: server/
+    #once the image is created, execute the folling command
+    #command: chmod 777 ./cgi-bin/server.py
+    command: python ./ShanghAI.py
+    #define the ports to use in order to access the container ([client-port]:[server-port])
+    ports:
+      - 8000:8000

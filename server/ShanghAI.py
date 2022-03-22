@@ -2,7 +2,8 @@
 from bottle import route, run
 
 #define hello function
-##route it to a page
+##decorator binds a piece of code to an URL path
+##in this case, we link the /hello path to the hello() function
 @route('/hello')
 def hello():
     return "blep"

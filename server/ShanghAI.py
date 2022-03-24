@@ -65,28 +65,45 @@ def generate():
         if obj['id'] == channel_id:
             #check the size of the hist, if it's over 'max_lenght' remove the oldest entry
 
-            #bot inputs take from chat history as well
+            #add input to chat history
+            bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1)
+            #generate response from what the user asked
+            #taking into account the context (chat history)
+            chat_history_ids = model.generate(bot_input_ids, max_length=500,pad_token_id=
+                tokenizer.eos_token_id,
+                no_repeat_ngram_size=args.get('no_repeat_ngram_size'),
+                do_sample=args.get('do_sample'),
+                top_k=args.get('top_k'),
+                top_p=args.get('top_p'),
+                temperature=args.get('temperature')
+                )
+            #format the response into human readable stuff
+            bot_response = "{}".format(tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True))
+            #store teh reply
+            reply = bot_response
+            #return the reply
+            return reply
         else:
             #create that channels conversation history
-            
-    #torch.cat([chat_history_ids, new_user_input_ids], dim=-1) if step > 0 else new_user_input_ids
-    bot_input_ids = new_user_input_ids
-    #generate response from what the user asked
-    #taking into account the context (chat history)
-    chat_history_ids = model.generate(bot_input_ids, max_length=500,pad_token_id=
-        tokenizer.eos_token_id,
-        no_repeat_ngram_size=args.get('no_repeat_ngram_size'),
-        do_sample=args.get('do_sample'),
-        top_k=args.get('top_k'),
-        top_p=args.get('top_p'),
-        temperature=args.get('temperature')
-        )
-    #format the response into human readable stuff
-    bot_response = "{}".format(tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True))
-    #store teh reply
-    reply = bot_response
-    #return the reply
-    return reply
+
+            #add input to chat history
+            bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1)
+            #generate response from what the user asked
+            #taking into account the context (chat history)
+            chat_history_ids = model.generate(bot_input_ids, max_length=500,pad_token_id=
+                tokenizer.eos_token_id,
+                no_repeat_ngram_size=args.get('no_repeat_ngram_size'),
+                do_sample=args.get('do_sample'),
+                top_k=args.get('top_k'),
+                top_p=args.get('top_p'),
+                temperature=args.get('temperature')
+                )
+            #format the response into human readable stuff
+            bot_response = "{}".format(tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True))
+            #store teh reply
+            reply = bot_response
+            #return the reply
+            return reply
 
 #define train function - used by ShanghAI to train the model
 ##decorator binds a piece of code to an URL path

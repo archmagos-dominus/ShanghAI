@@ -1,3 +1,5 @@
+![logo](banner.jpg)
+
 ShanghAI - docker backend for HourAI
 
 Summary:

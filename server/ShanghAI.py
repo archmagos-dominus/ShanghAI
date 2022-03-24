@@ -7,7 +7,8 @@ import torch #for the chat history
 #globals
 args = 'mlem'
 tokenizer = 'blep'
-model = 'blep'
+model = 'uwu'
+chat_hist = [{'test': 'owo'}]
 
 #define check function - checks is ShanghAI is able to communicate with HourAI
 ##decorator binds a piece of code to an URL path
@@ -27,7 +28,6 @@ def load():
     model_name = request.json.get('model')
     global args, tokenizer, model
     args = request.json.get('args')
-    print(args)
     #start by loading up the model/tokenizer
     print('Loading tokenizer...')
     tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -53,9 +53,23 @@ def load():
 @post('/generate', method='POST')
 def generate():
     #get model name from generate request
-    input = request.json.get('input')
+    input = request.json.get('inputs')
+    #get channel for chat history
+    channel_id = request.json.get('channel_id')
+    print(channel_id)
     #tokenize the user input
-    new_user_input_ids = tokenizer.encode(input + tokenizer.eos_token, return_tensors='pt')
+    new_user_input_ids = tokenizer.encode(input['text'] + tokenizer.eos_token, return_tensors='pt')
+    #iterate through the chat_hist array
+    for obj in chat_hist:
+        #check if there's a history for that channel
+        if obj['id'] == channel_id:
+            #check the size of the hist, if it's over 'max_lenght' remove the oldest entry
+
+            #bot inputs take from chat history as well
+        else:
+            #create that channels conversation history
+            
+    #torch.cat([chat_history_ids, new_user_input_ids], dim=-1) if step > 0 else new_user_input_ids
     bot_input_ids = new_user_input_ids
     #generate response from what the user asked
     #taking into account the context (chat history)
@@ -69,7 +83,9 @@ def generate():
         )
     #format the response into human readable stuff
     bot_response = "{}".format(tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True))
+    #store teh reply
     reply = bot_response
+    #return the reply
     return reply
 
 #define train function - used by ShanghAI to train the model

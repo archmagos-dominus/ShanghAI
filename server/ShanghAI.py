@@ -77,8 +77,10 @@ def generate():
                 bot_input_ids = torch.narrow(bot_input_ids, 1, -args.get('max_length'), args.get('max_length'))
             #generate response from what the user asked
             #taking into account the context (chat history)
-            chat_history_ids = model.generate(bot_input_ids, max_length=args.get('max_length'),pad_token_id=
-                tokenizer.eos_token_id,
+            chat_history_ids = model.generate(
+                bot_input_ids,
+                max_length=args.get('max_length')+5,
+                pad_token_id=tokenizer.eos_token_id,
                 no_repeat_ngram_size=args.get('no_repeat_ngram_size'),
                 do_sample=args.get('do_sample'),
                 top_k=args.get('top_k'),
@@ -103,8 +105,10 @@ def generate():
             bot_input_ids = chat_history_ids
             #generate response from what the user asked
             #taking into account the context (chat history)
-            chat_history_ids = model.generate(bot_input_ids, max_length=args.get('max_length')+5,pad_token_id=
-                tokenizer.eos_token_id,
+            chat_history_ids = model.generate(
+                bot_input_ids,
+                max_length=args.get('max_length')+5,
+                pad_token_id=tokenizer.eos_token_id,
                 no_repeat_ngram_size=args.get('no_repeat_ngram_size'),
                 do_sample=args.get('do_sample'),
                 top_k=args.get('top_k'),

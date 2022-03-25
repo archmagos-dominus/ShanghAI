@@ -56,20 +56,28 @@ def generate():
     input = request.json.get('inputs')
     #get channel for chat history
     channel_id = request.json.get('channel_id')
-    print(channel_id)
+    print(args.get('max_length'))
     #tokenize the user input
     new_user_input_ids = tokenizer.encode(input['text'] + tokenizer.eos_token, return_tensors='pt')
+    #helper var
+    is_chat_hist = False
     #iterate through the chat_hist array
     for obj in chat_hist:
+        #get tensor object from dict entry
+        chat_history_ids = obj.get(channel_id)
         #check if there's a history for that channel
-        if obj['id'] == channel_id:
-            #check the size of the hist, if it's over 'max_lenght' remove the oldest entry
-
+        if not (chat_history_ids == None):
+            #set helper var
+            is_chat_hist = True
             #add input to chat history
             bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1)
+            #check the size of the hist, if it's over 'max_lenght' remove the oldest tokens
+            if bot_input_ids.size(dim=1) >= args.get('max_length'):
+                #trim the tokens
+                bot_input_ids = torch.narrow(bot_input_ids, 1, -args.get('max_length'), args.get('max_length'))
             #generate response from what the user asked
             #taking into account the context (chat history)
-            chat_history_ids = model.generate(bot_input_ids, max_length=500,pad_token_id=
+            chat_history_ids = model.generate(bot_input_ids, max_length=args.get('max_length'),pad_token_id=
                 tokenizer.eos_token_id,
                 no_repeat_ngram_size=args.get('no_repeat_ngram_size'),
                 do_sample=args.get('do_sample'),
@@ -81,16 +89,21 @@ def generate():
             bot_response = "{}".format(tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True))
             #store teh reply
             reply = bot_response
+            #store the new chat_history_ids in the chat_hist array
+            chat_hist[-1][channel_id] = chat_history_ids
+            print(chat_hist)
             #return the reply
             return reply
-        else:
+    if not is_chat_hist:
             #create that channels conversation history
-
-            #add input to chat history
-            bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1)
+            chat_hist.append({channel_id: new_user_input_ids})
+            #define chat_history_ids for that channel
+            chat_history_ids = chat_hist[-1].get(channel_id)
+            #mlem
+            bot_input_ids = chat_history_ids
             #generate response from what the user asked
             #taking into account the context (chat history)
-            chat_history_ids = model.generate(bot_input_ids, max_length=500,pad_token_id=
+            chat_history_ids = model.generate(bot_input_ids, max_length=args.get('max_length')+5,pad_token_id=
                 tokenizer.eos_token_id,
                 no_repeat_ngram_size=args.get('no_repeat_ngram_size'),
                 do_sample=args.get('do_sample'),
@@ -98,6 +111,9 @@ def generate():
                 top_p=args.get('top_p'),
                 temperature=args.get('temperature')
                 )
+            #add chat_history_ids to the chat_hist array
+            chat_hist[-1][channel_id] = chat_history_ids
+            print(chat_hist)
             #format the response into human readable stuff
             bot_response = "{}".format(tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True))
             #store teh reply

@@ -56,7 +56,6 @@ def generate():
     input = request.json.get('inputs')
     #get channel for chat history
     channel_id = request.json.get('channel_id')
-    print(args.get('max_length'))
     #tokenize the user input
     new_user_input_ids = tokenizer.encode(input['text'] + tokenizer.eos_token, return_tensors='pt')
     #helper var
@@ -79,7 +78,7 @@ def generate():
             #taking into account the context (chat history)
             chat_history_ids = model.generate(
                 bot_input_ids,
-                max_length=args.get('max_length')+5,
+                max_length=args.get('max_length')+20,
                 pad_token_id=tokenizer.eos_token_id,
                 no_repeat_ngram_size=args.get('no_repeat_ngram_size'),
                 do_sample=args.get('do_sample'),
@@ -93,7 +92,6 @@ def generate():
             reply = bot_response
             #store the new chat_history_ids in the chat_hist array
             chat_hist[-1][channel_id] = chat_history_ids
-            print(chat_hist)
             #return the reply
             return reply
     if not is_chat_hist:
@@ -107,7 +105,7 @@ def generate():
             #taking into account the context (chat history)
             chat_history_ids = model.generate(
                 bot_input_ids,
-                max_length=args.get('max_length')+5,
+                max_length=args.get('max_length')+20,
                 pad_token_id=tokenizer.eos_token_id,
                 no_repeat_ngram_size=args.get('no_repeat_ngram_size'),
                 do_sample=args.get('do_sample'),
@@ -117,7 +115,6 @@ def generate():
                 )
             #add chat_history_ids to the chat_hist array
             chat_hist[-1][channel_id] = chat_history_ids
-            print(chat_hist)
             #format the response into human readable stuff
             bot_response = "{}".format(tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True))
             #store teh reply

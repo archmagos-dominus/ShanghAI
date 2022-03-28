@@ -60,6 +60,14 @@ def generate():
     new_user_input_ids = tokenizer.encode(input['text'] + tokenizer.eos_token, return_tensors='pt')
     #helper var
     is_chat_hist = False
+    #Dear programmer trying to read the code:
+    #I know it's a spaghettified mess
+    #Please forgive me, I reached my limit
+    #I tried improving it, but it somehow breaks the bot
+    #I have no idea what makes it break
+    #I know that it somehow recovers
+    #All by itself
+    #Scary...
     #iterate through the chat_hist array
     for obj in chat_hist:
         #get tensor object from dict entry

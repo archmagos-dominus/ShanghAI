@@ -91,12 +91,10 @@ def generate():
             bot_response = "{}".format(tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True))
             #if response does not contain word better not reply, not store in hist
             if re.findall("\w", bot_response):
-                #store teh reply
-                reply = bot_response
                 #store the new chat_history_ids in the chat_hist array
                 chat_hist[-1][channel_id] = chat_history_ids
                 #return the reply
-                return reply
+                return bot_response
             else:
                 return "blep"
     if not is_chat_hist:

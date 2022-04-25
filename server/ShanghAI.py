@@ -3,6 +3,7 @@ from bottle import get, post, request, run
 #for loading the AI model/tokenizer
 from transformers import AutoModelForCausalLM, AutoModelForCausalLM, AutoTokenizer
 import torch #for the chat history
+import re #regex module because for some reason pyshit doesn't come with it by default smh
 
 #globals
 args = 'mlem'
@@ -60,14 +61,6 @@ def generate():
     new_user_input_ids = tokenizer.encode(input['text'] + tokenizer.eos_token, return_tensors='pt')
     #helper var
     is_chat_hist = False
-    #Dear programmer trying to read the code:
-    #I know it's a spaghettified mess
-    #Please forgive me, I reached my limit
-    #I tried improving it, but it somehow breaks the bot
-    #I have no idea what makes it break
-    #I know that it somehow recovers
-    #All by itself
-    #Scary...
     #iterate through the chat_hist array
     for obj in chat_hist:
         #get tensor object from dict entry
@@ -96,12 +89,16 @@ def generate():
                 )
             #format the response into human readable stuff
             bot_response = "{}".format(tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True))
-            #store teh reply
-            reply = bot_response
-            #store the new chat_history_ids in the chat_hist array
-            chat_hist[-1][channel_id] = chat_history_ids
-            #return the reply
-            return reply
+            #if response does not contain word better not reply, not store in hist
+            if re.findall("\w", bot_response):
+                #store teh reply
+                reply = bot_response
+                #store the new chat_history_ids in the chat_hist array
+                chat_hist[-1][channel_id] = chat_history_ids
+                #return the reply
+                return reply
+            else:
+                return "blep"
     if not is_chat_hist:
             #create that channels conversation history
             chat_hist.append({channel_id: new_user_input_ids})

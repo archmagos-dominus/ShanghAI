@@ -4,6 +4,7 @@ from bottle import get, post, request, run
 from transformers import AutoModelForCausalLM, AutoModelForCausalLM, AutoTokenizer
 import torch #for the chat history
 import re #regex module because for some reason pyshit doesn't come with it by default smh
+import csv #for handling csv files (datasets)
 
 #globals
 args = 'mlem'
@@ -124,6 +125,15 @@ def generate():
             reply = bot_response
             #return the reply
             return reply
+
+#define datasets function - used by ShanghAI to receive and store the dataset for later training
+##decorator binds a piece of code to an URL path
+##in this case, we link the /datasets path to the datasets() function
+@post('/dataset_transfer', method='PUT')
+def dataset_transfer():
+    #read the file from the request and save it in the './datasets' folder
+    #if the file is already there, overwrite it with the new one
+    request.files.file.save('./datasets', overwrite=True)
 
 #define train function - used by ShanghAI to train the model
 ##decorator binds a piece of code to an URL path

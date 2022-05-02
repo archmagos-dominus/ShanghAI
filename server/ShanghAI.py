@@ -8,8 +8,8 @@ import csv #for handling csv files (datasets)
 
 #globals
 args = 'mlem'
-tokenizer = 'blep'
-model = 'uwu'
+tokenizer = False
+model = False
 chat_hist = [{'test': 'owo'}]
 
 #define check function - checks is ShanghAI is able to communicate with HourAI
@@ -26,26 +26,30 @@ def check():
 ##in this case, we link the /load path to the load() function
 @post('/load', method='POST')
 def load():
-    #get model name from load request
-    model_name = request.json.get('model')
+    #globals
     global args, tokenizer, model
-    args = request.json.get('args')
-    #start by loading up the model/tokenizer
-    print('Loading tokenizer...')
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    print('Tokenizer loaded.')
-    print('Loading model...')
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    print('Model loaded.')
-    #choose device to run on (GPU or CPU)
-    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    #model = model.to(device)
-    #print('Model loaded on {}'.format(device))
-    ####only for testing on non CUDA devices
-    ####force model to run on CPU
-    model.cpu()
-    #create the ready reply
-    reply = "ShanghAI: Model {} ready!".format(model_name)
+    if model and tokenizer:
+        reply = "Requested model already loaded."
+    else:
+        #get model name from load request
+        model_name = request.json.get('model')
+        args = request.json.get('args')
+        #start by loading up the model/tokenizer
+        print('Loading tokenizer...')
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        print('Tokenizer loaded.')
+        print('Loading model...')
+        model = AutoModelForCausalLM.from_pretrained(model_name)
+        print('Model loaded.')
+        #choose device to run on (GPU or CPU)
+        #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        #model = model.to(device)
+        #print('Model loaded on {}'.format(device))
+        ####only for testing on non CUDA devices
+        ####force model to run on CPU
+        model.cpu()
+        #create the ready reply
+        reply = "ShanghAI: Model {} ready!".format(model_name)
     #send the reply over to HourAI
     return reply
 

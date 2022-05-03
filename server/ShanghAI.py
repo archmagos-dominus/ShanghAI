@@ -10,7 +10,7 @@ import csv #for handling csv files (datasets)
 args = 'mlem'
 tokenizer = False
 model = False
-chat_hist = [{'test': 'owo'}]
+chat_hist = [{'test': 'blep'}]
 
 #define check function - checks is ShanghAI is able to communicate with HourAI
 ##decorator binds a piece of code to an URL path
@@ -29,7 +29,7 @@ def load():
     #globals
     global args, tokenizer, model
     if model and tokenizer:
-        reply = "Requested model already loaded."
+        reply = "Requested model already loaded. Ready for use!"
     else:
         #get model name from load request
         model_name = request.json.get('model')

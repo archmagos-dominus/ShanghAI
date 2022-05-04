@@ -7,6 +7,7 @@ import re #regex module because for some reason pyshit doesn't come with it by d
 import csv #for handling csv files (datasets)
 
 #globals
+model_name = ''
 args = 'mlem'
 tokenizer = False
 model = False
@@ -27,7 +28,7 @@ def check():
 @post('/load', method='POST')
 def load():
     #globals
-    global args, tokenizer, model
+    global args, tokenizer, model, model_name
     if model and tokenizer:
         reply = "Requested model already loaded. Ready for use!"
     else:
